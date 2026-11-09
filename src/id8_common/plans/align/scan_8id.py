@@ -5,6 +5,16 @@ This module provides plans for scanning various motors and detectors at the
 8ID -E and -I beamlines, including sample and with attenuation control.
 """
 
+# Plans B-PILOT (the plan-runner GUI) offers. Deliberately NOT ``__all__``: this
+# module is star-imported by ``startup.py`` and that import must keep exporting
+# every public name (devices, ``att``, ``showbeam``, ...). A name with a leading
+# underscore is never star-exported, so this changes nothing at runtime.
+__bpilot_plans__ = [
+    "dscan", "dmesh", "mesh", "d2scan", "ascan", "a2scan", "dscan_auto",
+    "x_lup", "y_lup", "huber_x_lup", "huber_y_lup",
+    "rheo_x_lup", "rheo_y_lup", "rheo_set_x_lup",
+]
+
 from typing import Optional
 
 from matplotlib.pylab import det
@@ -145,15 +155,33 @@ def save_images(det, save_img, num_pts, num_frames=1, file_path=None, folder_pre
 def dscan(motor, rel_begin, rel_end, num_pts, count_time,
                det=eiger4M, att_ratio=1e6, save_img=1):
     """
-    Pre-armed software-trigger scan for fast acquisitions.
+    Pre-armed software-trigger scan for fast acquisitions (relative to the current position).
 
-    args:
-        motor: ophyd positioner
-        rel_begin, rel_end: relative start/end (motor units)
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
+    Parameters
+    ----------
+    motor : device{motor}
+        motor :: Positioner to scan (e.g. huber.eta, sample.y).
+
+    rel_begin : float
+        start :: Start position, relative (motor units). Taken relative to the motor's current position.
+
+    rel_end : float
+        end :: End position, relative (motor units). Taken relative to the motor's current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -353,17 +381,43 @@ def dmesh(
     usage:
         RE(dmesh(huber.x, -0.5, 0.5, 11, huber.z, -0.5, 0.5, 11, 1))
 
-    args:
-        motor1: outer/slow ophyd positioner (e.g. huber.x)
-        rel_begin1, rel_end1: start/end for motor1 relative to its current position
-        num1: number of points along motor1
-        motor2: inner/fast ophyd positioner (e.g. huber.z)
-        rel_begin2, rel_end2: start/end for motor2 relative to its current position
-        num2: number of points along motor2
-        count_time: detector acquisition time per point (s)
-        det: detector (lambda2M, eiger4M, or tetramm1)
-        att_ratio: attenuation ratio
+    Parameters
+    ----------
+    motor1 : device{motor}
+        outer motor :: Outer (slow) positioner (e.g. huber.x).
 
+    rel_begin1 : float
+        outer start :: Start of the outer motor, relative (motor units).
+
+    rel_end1 : float
+        outer end :: End of the outer motor, relative (motor units).
+
+    num1 : int
+        outer points :: Number of points along the outer motor.
+
+    motor2 : device{motor}
+        inner motor :: Inner (fast) positioner (e.g. huber.z).
+
+    rel_begin2 : float
+        inner start :: Start of the inner motor, relative (motor units).
+
+    rel_end2 : float
+        inner end :: End of the inner motor, relative (motor units).
+
+    num2 : int
+        inner points :: Number of points along the inner motor.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -563,17 +617,43 @@ def mesh(
     usage:
         RE(mesh(huber.x, -0.5, 0.5, 11, huber.z, -0.5, 0.5, 11, 1))
 
-    args:
-        motor1: outer/slow ophyd positioner (e.g. huber.x)
-        abs_begin1, abs_end1: absolute start/end for motor1
-        num1: number of points along motor1
-        motor2: inner/fast ophyd positioner (e.g. huber.z)
-        abs_begin2, abs_end2: absolute start/end for motor2
-        num2: number of points along motor2
-        count_time: detector acquisition time per point (s)
-        det: detector (lambda2M, eiger4M, or tetramm1)
-        att_ratio: attenuation ratio
-        
+    Parameters
+    ----------
+    motor1 : device{motor}
+        outer motor :: Outer (slow) positioner (e.g. huber.x).
+
+    abs_begin1 : float
+        outer start :: Start of the outer motor, absolute (motor units).
+
+    abs_end1 : float
+        outer end :: End of the outer motor, absolute (motor units).
+
+    num1 : int
+        outer points :: Number of points along the outer motor.
+
+    motor2 : device{motor}
+        inner motor :: Inner (fast) positioner (e.g. huber.z).
+
+    abs_begin2 : float
+        inner start :: Start of the inner motor, absolute (motor units).
+
+    abs_end2 : float
+        inner end :: End of the inner motor, absolute (motor units).
+
+    num2 : int
+        inner points :: Number of points along the inner motor.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -753,15 +833,33 @@ def mesh(
 def dscan(motor, rel_begin, rel_end, num_pts, count_time,
                det=eiger4M, att_ratio=1e6, save_img=1):
     """
-    Pre-armed software-trigger scan for fast acquisitions.
+    Pre-armed software-trigger scan for fast acquisitions (relative to the current position).
 
-    args:
-        motor: ophyd positioner
-        rel_begin, rel_end: relative start/end (motor units)
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
+    Parameters
+    ----------
+    motor : device{motor}
+        motor :: Positioner to scan (e.g. huber.eta, sample.y).
+
+    rel_begin : float
+        start :: Start position, relative (motor units). Taken relative to the motor's current position.
+
+    rel_end : float
+        end :: End position, relative (motor units). Taken relative to the motor's current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -955,15 +1053,40 @@ def d2scan(
     usage:
         RE(d2scan(m1, s1, f1, m2, s2, f2, npts, ct))
 
-    args:
-        motor1, motor2: ophyd positioners (e.g. huber.eta, huber.chi)
-        rel_begin1, rel_end1: relative start/end for motor1
-        rel_begin2, rel_end2: relative start/end for motor2
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
-        save_img: 1 save, 0 don't save
+    Parameters
+    ----------
+    motor1 : device{motor}
+        motor 1 :: First positioner (e.g. huber.eta, huber.chi).
+
+    rel_begin1 : float
+        start 1 :: Start of motor 1, relative (motor units).
+
+    rel_end1 : float
+        end 1 :: End of motor 1, relative (motor units).
+
+    motor2 : device{motor}
+        motor 2 :: Second positioner, moved together with motor 1 (e.g. huber.eta, huber.chi).
+
+    rel_begin2 : float
+        start 2 :: Start of motor 2, relative (motor units).
+
+    rel_end2 : float
+        end 2 :: End of motor 2, relative (motor units).
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -1142,15 +1265,31 @@ def ascan(
     usage:
         RE(ascan(motor, abs_begin, abs_end, num_pts, count_time))
 
-    args:
-        motor: ophyd positioner (e.g. huber.eta, sample.y)
-        abs_begin: absolute start position (motor units)
-        abs_end: absolute end position (motor units)
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
-        save_img: 1 save, 0 don't save
+    Parameters
+    ----------
+    motor : device{motor}
+        motor :: Positioner to scan (e.g. huber.eta, sample.y).
+
+    abs_begin : float
+        start :: Start position, absolute (motor units).
+
+    abs_end : float
+        end :: End position, absolute (motor units).
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -1326,15 +1465,40 @@ def a2scan(
     usage:
         RE(a2scan(m1, s1, f1, m2, s2, f2, npts, ct))
 
-    args:
-        motor1, motor2: ophyd positioners (e.g. huber.eta, huber.chi)
-        abs_begin1, abs_end1: absolute start/end for motor1
-        abs_begin2, abs_end2: absolute start/end for motor2
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
-        save_img: 1 save, 0 don't save
+    Parameters
+    ----------
+    motor1 : device{motor}
+        motor 1 :: First positioner (e.g. huber.eta, huber.chi).
+
+    abs_begin1 : float
+        start 1 :: Start of motor 1, absolute (motor units).
+
+    abs_end1 : float
+        end 1 :: End of motor 1, absolute (motor units).
+
+    motor2 : device{motor}
+        motor 2 :: Second positioner, moved together with motor 1 (e.g. huber.eta, huber.chi).
+
+    abs_begin2 : float
+        start 2 :: Start of motor 2, absolute (motor units).
+
+    abs_end2 : float
+        end 2 :: End of motor 2, absolute (motor units).
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
@@ -1501,14 +1665,25 @@ def x_lup(
     att_ratio: int = 7,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the sample X axis.
+    """
+    Perform a relative scan along the sample X axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1525,14 +1700,25 @@ def y_lup(
     att_ratio: int = 7,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the sample Y axis.
+    """
+    Perform a relative scan along the sample Y axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1549,14 +1735,25 @@ def huber_x_lup(
     att_ratio: int = 1,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the sample X axis.
+    """
+    Perform a relative scan along the Huber X axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1573,14 +1770,25 @@ def huber_y_lup(
     att_ratio: int = 1,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the sample Y axis.
+    """
+    Perform a relative scan along the Huber Y axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1596,14 +1804,25 @@ def rheo_x_lup(
     att_ratio: int = 7,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the rheometer X axis.
+    """
+    Perform a relative scan along the rheometer X axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1620,14 +1839,25 @@ def rheo_y_lup(
     att_ratio: int = 7,
     det: Device = tetramm1,
 ):
-    """Perform a relative scan along the rheometer Y axis.
+    """
+    Perform a relative scan along the rheometer Y axis.
 
-    Args:
-        rel_begin: Start position relative to current position (mm)
-        rel_end: End position relative to current position (mm)
-        num_pts: Number of points in the scan
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    rel_begin : float [mm]
+        start :: Start position relative to the current position.
+
+    rel_end : float [mm]
+        end :: End position relative to the current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1641,14 +1871,19 @@ def rheo_set_x_lup(
     att_ratio: int = 7,
     det: Device = tetramm1,
 ):
-    """Perform a series of scans at specific rheometer X positions.
+    """
+    Perform a series of scans at specific rheometer X positions.
 
     This plan moves the rheometer to three specific X positions and performs
     relative scans around each position.
 
-    Args:
-        att_level: Attenuation level to use (0-15)
-        det: Detector to use for the scan
+    Parameters
+    ----------
+    att_ratio : int
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
     """
     pre_align()
     att(att_ratio)
@@ -1804,16 +2039,33 @@ def dscan_test(motor, rel_begin, rel_end, num_pts, count_time,
 def dscan_auto(motor, rel_begin, rel_end, num_pts, count_time,
                det=eiger4M, att_ratio=1e6, save_img=1):
     """
-    Pre-armed software-trigger scan for fast acquisitions.
+    Pre-armed software-trigger scan for fast acquisitions (relative to the current position).
 
-    args:
-        motor: ophyd positioner
-        rel_begin, rel_end: relative start/end (motor units)
-        num_pts: number of points
-        count_time: detector acquisition time per point (s)
-        det: detector (eiger4M, lambda2M, or tetramm1)
-        att_ratio: attenuation ratio
-        save_img: 1 save, 0 don't save
+    Parameters
+    ----------
+    motor : device{motor}
+        motor :: Positioner to scan (e.g. huber.eta, sample.y).
+
+    rel_begin : float
+        start :: Start position, relative (motor units). Taken relative to the motor's current position.
+
+    rel_end : float
+        end :: End position, relative (motor units). Taken relative to the motor's current position.
+
+    num_pts : int
+        points :: Number of points in the scan.
+
+    count_time : float [s]
+        count time :: Detector acquisition time per point.
+
+    det : device{area_detector}
+        detector :: Detector to count with (eiger4M, lambda2M or tetramm1).
+
+    att_ratio : float
+        attenuation ratio :: Filter-box attenuation ratio set before the scan (values below 1 are set to 1).
+
+    save_img : int
+        save images :: 1 to save the detector images, 0 not to.
     """
     pre_align()
     att(att_ratio)
