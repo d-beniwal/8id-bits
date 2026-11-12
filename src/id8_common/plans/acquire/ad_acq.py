@@ -735,7 +735,7 @@ def cleanup_acquisition(det=None, mode_info=None):
 
     Parameters
     ----------
-    det : device
+    det : device{area_detector}
         detector :: Detector whose acquire and HDF capture are stopped (optional).
     """
     if mode_info is not None and "softglue" in mode_info.get("required_devices", []):

@@ -34,7 +34,7 @@ def tetramm_acq_series(
 
     Parameters
     ----------
-    det : device
+    det : device{area_detector}
         TetrAMM :: TetrAMM to read (defaults to tetramm3).
 
     filename : str

@@ -73,7 +73,7 @@ def auto_att(
 
     Parameters
     ----------
-    det : device
+    det : device{area_detector}
         detector :: eiger4M or lambda2M.
 
     pilot_exptime : float [s]
