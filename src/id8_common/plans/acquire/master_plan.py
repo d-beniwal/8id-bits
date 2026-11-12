@@ -1,3 +1,11 @@
+
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "run_measurement_info",
+    "dry_run_measurement_info",
+]
+
 import copy
 import yaml
 from pathlib import Path
@@ -570,6 +578,17 @@ def run_measurement_info(
     measurement_info_file=MEASUREMENT_INFO_FILE,
     sample_info_file=SAMPLE_INFO_FILE,
 ):
+    """
+    Run every measurement block in the measurement YAML, using the sample YAML for positions.
+
+    Parameters
+    ----------
+    measurement_info_file : code
+        measurement file :: YAML file with the measurement blocks. The default, MEASUREMENT_INFO_FILE, is a fixed path in the 8-ID-I user_plans folder; pass a quoted path to use another file.
+
+    sample_info_file : code
+        sample file :: YAML file with the sample positions. The default, SAMPLE_INFO_FILE, is a fixed path in the 8-ID-I user_plans folder; pass a quoted path to use another file.
+    """
     sample_info = read_yaml(sample_info_file)
     measurement_info = read_yaml(measurement_info_file)
 
@@ -591,6 +610,9 @@ def run_measurement_info(
 # =============================================================================
 
 def dry_run_measurement_info():
+    """
+    Preview the expanded measurement blocks and the estimated total time; nothing is acquired.
+    """
     sample_info = read_yaml(SAMPLE_INFO_FILE)
     measurement_info = read_yaml(MEASUREMENT_INFO_FILE)
 

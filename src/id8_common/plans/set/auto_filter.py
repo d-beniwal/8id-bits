@@ -1,4 +1,11 @@
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "auto_att",
+]
+
+
 import json
 import pathlib
 import time
@@ -64,13 +71,25 @@ def auto_att(
 ):
     """Find the optimal attenuation using short pilot exposures.
 
-    Args:
-        det:            eiger4M or lambda2M
-        pilot_exptime:  duration of each test frame (s)
-        rate_limit:     max acceptable count rate (max pixel cts/s)
-        filter_factor:  transmission multiplier per step, must be > 1
-        retry_max:      max iterations before giving up
-        grace_factor:   lower rate bound = rate_limit * grace_factor
+    Parameters
+    ----------
+    det : device
+        detector :: eiger4M or lambda2M.
+
+    pilot_exptime : float [s]
+        pilot exposure :: Duration of each test frame.
+
+    rate_limit : float [counts/s]
+        rate limit :: Maximum acceptable count rate (max pixel counts per second).
+
+    filter_factor : float
+        filter factor :: Transmission multiplier per step; must be greater than 1.
+
+    retry_max : int
+        max retries :: Maximum iterations before giving up.
+
+    grace_factor : float
+        grace factor :: The lower rate bound is rate_limit * grace_factor.
 
     Example::
 

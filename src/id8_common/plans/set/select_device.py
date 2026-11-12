@@ -5,6 +5,14 @@ All motor names, positions, and device-specific settings are read from
 device_position.yaml so that hardware values stay out of the code.
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "select_device",
+    "move_detector_axes",
+]
+
+
 from pathlib import Path
 
 import yaml
@@ -75,9 +83,16 @@ def move_detector_axes(name: str, overrides: dict, timeout: float = 300):
     Applied on top of whatever select_device() already set, so callers only need to
     pass the axes they want to override (e.g. {"swing_angle_horizontal": 5.0}).
 
-    Args:
-        name: Detector name as used by select_device() (resolves DETECTOR_ALIASES).
-        overrides: {axis_name: position} for any subset of AXIS_NAMES.
+    Parameters
+    ----------
+    name : str
+        detector :: Detector name as used by select_device().
+
+    overrides : code
+        axis positions :: Python dict {axis_name: position} for any subset of the detector axes, e.g. {'swing_angle_horizontal': 5.0}.
+
+    timeout : float [s]
+        timeout :: Move timeout applied to each axis.
 
     Raises:
         ValueError: if an axis has no real device (e.g. lambda2M's horizontal/vertical
@@ -112,9 +127,10 @@ def select_device(name: str):
     - diagnostics: moves motors only.
     - sample_envs: opens a valve, moves motors, then closes the valve.
 
-    Args:
-        name: Position key in device_position.yaml
-              (e.g. ``"eiger4M"``, ``"microscope"``, ``"qnw"``).
+    Parameters
+    ----------
+    name : str
+        device name :: Position key in device_position.yaml, e.g. eiger4M, lambda2M, rigaku3M_epics, microscope or qnw. A detector name also sets the detector registers; a sample environment opens its valve, moves, then closes it.
     """
     config = _load_config()
     resolved_name = DETECTOR_ALIASES.get(name, name)

@@ -8,6 +8,14 @@ Supported modes:
     rigaku3M_epics: "EPICS"
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "det_acq_series",
+    "cleanup_acquisition",
+]
+
+
 from datetime import datetime
 import importlib.util
 import os
@@ -723,7 +731,13 @@ ACQ_MODES = {
 # =============================================================================
 
 def cleanup_acquisition(det=None, mode_info=None):
-    """Stop softglue (if used by this mode) and abort detector acquisition."""
+    """Stop softglue (if used by this mode) and abort detector acquisition.
+
+    Parameters
+    ----------
+    det : device
+        detector :: Detector whose acquire and HDF capture are stopped (optional).
+    """
     if mode_info is not None and "softglue" in mode_info.get("required_devices", []):
         try:
             softglue = get_connected_device("softglue")
@@ -795,6 +809,14 @@ def det_acq_series(wait_time=0, hooks=None):
         det_acq_series() appends:
             _f001000
             _r00001
+
+    Parameters
+    ----------
+    wait_time : float [s]
+        wait time :: Wait before each repeated acquisition.
+
+    hooks : code
+        hooks :: Optional list of hook specs, e.g. [{'location': '/path/test_hook.py'}]. Only lambda2M External acquisition calls them.
     """
     global active_hooks
 

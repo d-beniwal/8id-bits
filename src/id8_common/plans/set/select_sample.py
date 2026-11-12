@@ -2,6 +2,13 @@
 Select and move to a sample position using the sample_info.yaml configuration.
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "select_sample",
+]
+
+
 import yaml
 from pathlib import Path
 
@@ -28,8 +35,10 @@ def select_sample(env: int):
     them through the ophyd registry, so the same function works for any stage
     configured in the YAML (sample, rheometer, huber, etc.).
 
-    Args:
-        env: Sample index matching a ``sample_{env}`` key in the YAML.
+    Parameters
+    ----------
+    env : int
+        sample index :: Index of the sample to move to; matches the sample_<index> key in sample_info.yaml.
     """
     with open(SAMPLE_INFO_PATH, "r") as f:
         loaded_dict = yaml.safe_load(f)

@@ -22,6 +22,20 @@ rather than at protocol level.
 sample_info.yaml is shared with the serial path and read unchanged.
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_plans__ = [
+    "run_dual_measurement_info",
+    "dry_run_dual_measurement_info",
+    "setup_huber_for_dual",
+]
+__bpilot_python__ = [
+    "run_dual_measurement_info",
+    "dry_run_dual_measurement_info",
+    "setup_huber_for_dual",
+]
+
+
 from apsbits.core.instrument_init import oregistry
 from id8_common.plans.acquire.ad_acq import ACQ_MODES
 from id8_common.plans.acquire.ad_acq import get_ophyd_object
@@ -448,7 +462,16 @@ def run_dual_measurement_info(
     measurement_info_file=DUAL_MEASUREMENT_INFO_FILE,
     sample_info_file=SAMPLE_INFO_FILE,
 ):
-    """Expand dual_measurement_info.yaml and run every measurement it describes."""
+    """Expand dual_measurement_info.yaml and run every measurement it describes.
+
+    Parameters
+    ----------
+    measurement_info_file : code
+        measurement file :: YAML file with the dual-measurement blocks; default DUAL_MEASUREMENT_INFO_FILE. Pass a quoted path to use another file.
+
+    sample_info_file : code
+        sample file :: YAML file with the sample positions; default SAMPLE_INFO_FILE. Pass a quoted path to use another file.
+    """
     sample_info = read_yaml(sample_info_file)
     measurement_info = read_yaml(measurement_info_file)
 
@@ -479,6 +502,17 @@ def dry_run_dual_measurement_info(
 
     check_hardware=False skips the device-connected and ophyd-path checks so this can be run
     off the beamline; pass True on a live session to validate those too.
+
+    Parameters
+    ----------
+    measurement_info_file : code
+        measurement file :: YAML file with the dual-measurement blocks; default DUAL_MEASUREMENT_INFO_FILE. Pass a quoted path to use another file.
+
+    sample_info_file : code
+        sample file :: YAML file with the sample positions; default SAMPLE_INFO_FILE. Pass a quoted path to use another file.
+
+    check_hardware : bool
+        check hardware :: Also validate that the devices are connected and the ophyd paths resolve; leave off to preview away from the beamline.
     """
     sample_info = read_yaml(sample_info_file)
     measurement_info = read_yaml(measurement_info_file)

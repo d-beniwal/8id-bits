@@ -2,6 +2,13 @@
 Simple, modular Ophyd scripts for users.
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "tetramm_acq_series",
+]
+
+
 from datetime import datetime
 import time
 
@@ -22,6 +29,20 @@ def tetramm_acq_series(
     num_capture=1,
 ):
     
+    """
+    Capture TetrAMM frames to an HDF5 file and wait until the capture finishes.
+
+    Parameters
+    ----------
+    det : device
+        TetrAMM :: TetrAMM to read (defaults to tetramm3).
+
+    filename : str
+        file name :: HDF5 file name, written under <mount_point><cycle>/<experiment>/data/. Fill it in: left blank the file is named 'None'.
+
+    num_capture : int
+        frames :: Number of frames to capture before the call returns.
+    """
     cycle_name = pv_registers.cycle_name.get()
     exp_name = pv_registers.experiment_name.get()
     mount_point = pv_registers.mount_point.get()

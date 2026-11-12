@@ -18,6 +18,13 @@ To watch the EPICS PVs in a simple GUI:
         &
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "set_qnw",
+]
+
+
 import time
 from apsbits.core.instrument_init import oregistry
 
@@ -37,6 +44,20 @@ qnw_controllers = [qnw_env1, qnw_env2, qnw_env3]
 def set_qnw(qnw_number: int, setpoint: float, wait: bool = True, ramprate: float = 0.3):
     """
     Change temperature on a QNW controller using Ophyd commands.
+
+    Parameters
+    ----------
+    qnw_number : int
+        controller :: QNW controller number (1 to 3).
+
+    setpoint : float
+        setpoint :: Target temperature.
+
+    wait : bool
+        wait :: Block until the controller reaches the setpoint; if unticked the setpoint is only written.
+
+    ramprate : float
+        ramp rate :: Ramp rate written to the controller when it differs from the current value.
     """
     # if qnw_number < 1 or qnw_number > len(qnw_controllers):
     #     raise ValueError(f"qnw_number must be between 1 .. {len(qnw_controllers)}," f" received {qnw_number}.")

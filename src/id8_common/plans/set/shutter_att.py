@@ -3,6 +3,20 @@ This module provides plans for controlling the beam shutter and safety interlock
 at the 8ID-E station.
 """
 
+# B-PILOT (the plan-runner GUI) offers these as plain-Python calls (no RE()). Leading
+# underscore => never star-exported, so this changes nothing at runtime.
+__bpilot_python__ = [
+    "showbeam",
+    "blockbeam",
+    "shutteron",
+    "shutteroff",
+    "pre_align",
+    "post_align",
+    "PIND_status",
+    "att",
+]
+
+
 from apsbits.core.instrument_init import oregistry
 import epics as pe
 import time
@@ -46,14 +60,22 @@ def pre_align():
     time.sleep(0.5)
 
 def PIND_status(status=0):
-    """Remove the PIND from the beam path."""
+    """Remove the PIND from the beam path.
+
+    Parameters
+    ----------
+    status : int
+        status :: Value written to pd.active; the default 0 removes the PIND from the beam path.
+    """
     pd.active.put(status)
 
 def att(att_ratio: float=1.0):
     """Set the attenuation ratio with multiple attempts.
 
-    Args:
-        att_ratio: Attenuation ratio to set (0-15)
+    Parameters
+    ----------
+    att_ratio : float
+        attenuation ratio :: Attenuation ratio to set. Values below 1.0 are raised to 1.0 (the original note gives a 0-15 range).
     """
     if att_ratio < 1.0:
         att_ratio = 1.0
